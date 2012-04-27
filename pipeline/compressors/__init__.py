@@ -205,7 +205,8 @@ class Compressor(object):
 
     def read_file(self, path):
         """Read file content in binary mode"""
-        file = default_storage.open(path, 'rb')
+        path = finders.find(path)
+        file = open(path, 'rb')
         content = file.read()
         file.close()
         return content

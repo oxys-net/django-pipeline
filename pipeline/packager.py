@@ -1,3 +1,4 @@
+import os
 from django.core.files.base import ContentFile
 from django.utils.encoding import smart_str
 
@@ -13,7 +14,7 @@ class Package(object):
     def __init__(self, config):
         self.config = config
         self._sources = []
-
+        
     @property
     def sources(self):
         if not self._sources:
@@ -24,7 +25,7 @@ class Package(object):
                         paths.append(str(path))
             self._sources = paths
         return self._sources
-
+    
     @property
     def paths(self):
         return [path for path in self.sources
@@ -61,7 +62,7 @@ class Packager(object):
         self.storage = storage
         self.verbose = verbose
         self.compressor = Compressor(storage=storage, verbose=verbose)
-        self.compiler = Compiler(verbose=verbose)
+        self.compiler = Compiler(storage=storage, verbose=verbose)
         if css_packages is None:
             css_packages = settings.PIPELINE_CSS
         if js_packages is None:
@@ -70,7 +71,19 @@ class Packager(object):
             'css': self.create_packages(css_packages),
             'js': self.create_packages(js_packages),
         }
-
+    def get_source_for(self, name):
+        for kind in ['css','js']:
+            for package_name in self.packages[kind]:
+                for path in self.packages[kind][package_name].sources:
+                    if os.path.splitext(name)[0] == os.path.splitext(path)[0]:
+                        return path
+        return None
+    def get_package_for(self, name):
+        for kind in ['css','js']:
+            for package_name in self.packages[kind]:
+                if self.packages[kind][package_name].output_filename == name:
+                    return kind, self.packages[kind][package_name]
+        return None, None
     def package_for(self, kind, package_name):
         try:
             return self.packages[kind][package_name]

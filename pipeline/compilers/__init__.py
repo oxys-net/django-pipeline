@@ -44,7 +44,10 @@ class Compiler(object):
         return '.'.join((path[0], extension))
 
     def read_file(self, path):
-        file = self.storage.open(path, 'rb')
+        op = path
+        path = finders.find(path)
+        print "read",op, path
+        file = open(path, 'rb')
         content = file.read()
         file.close()
         return content

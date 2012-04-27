@@ -32,7 +32,6 @@ class CompressedCSSNode(template.Node):
         if settings.PIPELINE:
             return self.render_css(package, package.output_filename)
         else:
-            paths = self.packager.compile(package.paths)
             return self.render_individual(package, paths)
 
     def render_css(self, package, path):
@@ -68,7 +67,6 @@ class CompressedJSNode(template.Node):
         if settings.PIPELINE:
             return self.render_js(package, package.output_filename)
         else:
-            paths = self.packager.compile(package.paths)
             templates = self.packager.pack_templates(package)
             return self.render_individual(package, paths, templates)
 

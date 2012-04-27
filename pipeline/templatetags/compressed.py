@@ -32,6 +32,7 @@ class CompressedCSSNode(template.Node):
         if settings.PIPELINE:
             return self.render_css(package, package.output_filename)
         else:
+            raise Exception('need to extract paths')
             return self.render_individual(package, paths)
 
     def render_css(self, package, path):
@@ -68,6 +69,7 @@ class CompressedJSNode(template.Node):
             return self.render_js(package, package.output_filename)
         else:
             templates = self.packager.pack_templates(package)
+            raise Exception('need to extract paths')
             return self.render_individual(package, paths, templates)
 
     def render_js(self, package, path):

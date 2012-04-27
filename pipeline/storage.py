@@ -19,23 +19,8 @@ TMP_STORAGE_LOCATION = tempfile.mkdtemp()
 class PipelineStorage(FileSystemStorage):
     
     def __init__(self, *args, **kwargs):
-        
         super(PipelineStorage, self).__init__(location=TMP_STORAGE_LOCATION, *args, **kwargs)
-        self.files = {
-                      'core1.css' : {
-                                     'compiler': '',
-                                     'path' : 'core1.styl'
-                                     },
-                      'core.css' : {
-                                     'compiler': '',
-                                     'package' : ''
-                                     },
-                      'core2.css' : {
-                                     'compiler': '',
-                                     'path' : 'core1.styl'
-                                     }
-                      }
-    
+            
     def listdir(self,*args,**kwargs):
         from .packager import Packager
         directories, files = [], []

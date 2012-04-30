@@ -54,10 +54,10 @@ PIPELINE_CSS = {
 PIPELINE_JS = {
     'scripts': {
         'source_filenames': (
-            'js/first.js',
+            'js/dummy.coffee',
             'js/second.js',
             'js/application.js',
-            'templates/**/*.jst'
+            #'templates/**/*.jst'
         ),
         'output_filename': 'scripts.css'
     }

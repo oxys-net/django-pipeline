@@ -7,10 +7,10 @@ from pipeline.compilers import SubProcessCompiler
 class StylusCompiler(SubProcessCompiler):
     output_extension = 'css'
 
-    def match_file(self, filename):
+    def _match_file(self, filename):
         return filename.endswith('.styl')
 
-    def compile_file(self, content, path):
+    def _compile_file(self, content, path):
         command = "%s %s" % (
             settings.PIPELINE_STYLUS_BINARY,
             settings.PIPELINE_STYLUS_ARGUMENTS,

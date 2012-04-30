@@ -10,31 +10,46 @@ except ImportError:
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import get_storage_class
 from django.utils.functional import LazyObject
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import Storage
 from django.core.files import locks, File
 from .conf import settings
+from .packager import packages
 
 TMP_STORAGE_LOCATION = tempfile.mkdtemp()
 
-class PipelineStorage(FileSystemStorage):
+class PipelineStorage(Storage):
     
-    def __init__(self, *args, **kwargs):
-        super(PipelineStorage, self).__init__(location=TMP_STORAGE_LOCATION, *args, **kwargs)
-            
-    def listdir(self,*args,**kwargs):
-        from .packager import Packager
-        directories, files = [], []
+    def __init__(self, packages = packages):
+        self.packages = packages
         
-        packager = Packager(storage=self)
-        for package_name in packager.packages['css']:
-            package = packager.package_for('css', package_name)
-            output_file = packager.pack_stylesheets(package)
-            files.append(output_file)
-        for package_name in packager.packages['js']:
-            package = packager.package_for('js', package_name)
-            output_file = packager.pack_javascripts(package)
-            files.append(output_file)
-        return directories, files
+    def _open(self, name, mode='rb'):
+        raise NotImplementedError("This backend doesn't support open.")
+    
+    def save(self, name, content): 
+        raise NotImplementedError("This backend doesn't support save.")
+    
+    def get_valid_name(self, name):
+        raise NotImplementedError("This backend doesn't support get_valid_name.")
+    
+    def get_available_name(self, name):
+        raise NotImplementedError("This backend doesn't support get_available_name.")
+    
+    def path(self, name):
+        return self.packages.getfile(name).compiled.name
+    
+    #delete
+    #exists
+    
+    def listdir(self, path):
+        files = self.packages.listfiles()
+        return [], files
+    
+    #size
+    #url
+    #accessed_time
+    #created_time
+    #modified_time
+    """
     
     def get_available_name(self, name):
         if os.path.exists(self.path(name)):
@@ -57,7 +72,7 @@ class PipelineStorage(FileSystemStorage):
             return True
         else:
             return os.path.exists(path)
-    
+    """
 
 
 class PipelineCachedStorage(PipelineStorage, CachedFilesMixin):

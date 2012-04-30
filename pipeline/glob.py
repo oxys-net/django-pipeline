@@ -2,6 +2,12 @@ import os
 import re
 import fnmatch
 
+
+try:
+    from staticfiles import finders
+except ImportError:
+    from django.contrib.staticfiles import finders # noqa
+    
 from pipeline.storage import default_storage
 
 __all__ = ["glob", "iglob"]
@@ -46,10 +52,17 @@ def iglob(pathname):
 # They return a list of basenames. `glob1` accepts a pattern while `glob0`
 # takes a literal basename (so it only has to check for its existence).
 
+def listdir(path):
+    for finder in finders.get_finders():
+        for storage in finder.storages.values():
+            try:
+                return storage.listdir(path)
+            except OSError:
+                pass
 
 def glob1(dirname, pattern):
     try:
-        directories, files = default_storage.listdir(dirname)
+        directories, files = listdir(dirname)
         names = directories + files
     except NotImplementedError:
         return []

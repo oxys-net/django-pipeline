@@ -61,7 +61,7 @@ class Packager(object):
     def __init__(self, storage=default_storage, verbose=False, css_packages=None, js_packages=None):
         self.storage = storage
         self.verbose = verbose
-        self.compressor = Compressor(storage=storage, verbose=verbose)
+        self.compressor = Compressor(verbose=verbose)
         self.compiler = Compiler(storage=storage, verbose=verbose)
         if css_packages is None:
             css_packages = settings.PIPELINE_CSS

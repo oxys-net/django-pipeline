@@ -43,8 +43,7 @@ FONT_EXTS = ['.ttf', '.otf', '.woff']
 class Compressor(object):
     asset_contents = {}
 
-    def __init__(self, storage=default_storage, verbose=False):
-        self.storage = storage
+    def __init__(self, verbose=False):
         self.verbose = verbose
 
     def js_compressor(self):
@@ -159,7 +158,7 @@ class Compressor(object):
         font = ext in FONT_EXTS
         if not variant:
             return False
-        if not (re.search(EMBEDDABLE, path) and self.storage.exists(path)):
+        if not (re.search(EMBEDDABLE, path) and finders.find(path)):
             return False
         if not ext in EMBED_EXTS:
             return False

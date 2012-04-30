@@ -20,21 +20,9 @@ class StorageTest(TestCase):
         settings.PIPELINE_CSS_COMPRESSOR = None
         self.storage = PipelineStorage()
 
-    def test_post_process_dry_run(self):
-        processed_files = self.storage.post_process([], True)
-        self.assertEqual(processed_files, [])
-
-    def test_post_process(self):
-        processed_files = self.storage.post_process(SortedDict({
-            'css/first.css': (self.storage, 'css/first.css'),
-            'images/arrow.png': (self.storage, 'images/arrow.png')
-        }))
-        self.assertEqual(processed_files, [
-            ('css/first.css', 'css/first.css', True),
-            ('images/arrow.png', 'images/arrow.png', True),
-            ('testing.css', 'testing.css', True),
-            ('scripts.css', 'scripts.css', True)
-        ])
+    def test_listdir(self):
+        files = self.storage.listdir()
+        self.assertEqual(files, ([],['testing.css', 'scripts.css']))
 
     def tearDown(self):
         settings.PIPELINE_CSS = {}

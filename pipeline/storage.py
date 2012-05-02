@@ -1,10 +1,8 @@
 import os, tempfile
 
 try:
-    from staticfiles import finders
     from staticfiles.storage import CachedFilesMixin, StaticFilesStorage
 except ImportError:
-    from django.contrib.staticfiles import finders # noqa
     from django.contrib.staticfiles.storage import CachedFilesMixin, StaticFilesStorage # noqa
 
 from django.core.exceptions import ImproperlyConfigured
@@ -13,14 +11,16 @@ from django.utils.functional import LazyObject
 from django.core.files.storage import Storage
 from django.core.files import locks, File
 from .conf import settings
-from .packager import packages
-
-TMP_STORAGE_LOCATION = tempfile.mkdtemp()
+from .packager import Packages
 
 class PipelineStorage(Storage):
     
-    def __init__(self, packages = packages):
-        self.packages = packages
+    def __init__(self, packages = None):
+        if packages is None:
+            self.packages = Packages()
+        else:
+            self.packages = packages
+        self.location = ''
         
     def _open(self, name, mode='rb'):
         raise NotImplementedError("This backend doesn't support open.")
@@ -35,10 +35,14 @@ class PipelineStorage(Storage):
         raise NotImplementedError("This backend doesn't support get_available_name.")
     
     def path(self, name):
+        if name == "":
+            return True
         return self.packages.getfile(name).compiled.name
     
     #delete
-    #exists
+    
+    def exists(self,path):
+        return path in self.packages.listfiles()
     
     def listdir(self, path):
         files = self.packages.listfiles()

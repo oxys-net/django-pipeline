@@ -2,25 +2,43 @@ from django.core.files.base import File
 from django.core.exceptions import ImproperlyConfigured
 
 try:
-    from staticfiles.finders import find
+    from staticfiles import finders
 except ImportError:
-    from django.contrib.staticfiles.finders import finder
+    from django.contrib.staticfiles import finders
     
-from .compilers import compilers
 from pipeline.conf import settings
+from pipeline.compilers import Compilers
+
+from django.conf import settings
 
 class Package(object):
-    def __init__(self, config, compilers=compilers):
-        self.compilers = compilers
+    def __init__(self, config, compilers=None):
+        if compilers is None:
+            self.compilers = Compilers()
+        else:
+            self.compilers = compilers
         self._files = []
         self._output_filename = config['output_filename']
         for name in config['source_filenames']:
-            path = find(name)
+            path = self._findfile(name)
             if path == None:
                 raise ImproperlyConfigured('Can\'t find file %s' % name)
             self._files.append(PackageFile(name, open(path), compilers=self.compilers))
     
+    def _findfile(self,path):
+        for finder_path in settings.STATICFILES_FINDERS:
+            if finder_path == "pipeline.finders.PipelineFinder":
+                continue
+            finder = finders.get_finder(finder_path)
+            result = finder.find(path, False)
+            if result:
+                return result
+        return None
+            
     def getfile(self, name):
+        if self._output_filename == name:
+            return self._files[0] #@todo wrong !!!
+        
         for file in self._files:
             if file.name == name:
                 return file 
@@ -43,8 +61,11 @@ class JsPackage(Package):
 
 class PackageFile(object):
     
-    def __init__(self, name, file, compilers=compilers):
-        self.compilers = compilers
+    def __init__(self, name, file, compilers=None):
+        if compilers is None:
+            self.compilers = Compilers()
+        else:
+            self.compilers = compilers
         self.original = File(file)
         self._compiled = None
         self._name = None
@@ -64,7 +85,10 @@ class PackageFile(object):
 
 
 class Packages(object):
-    def __init__(self, css_config=None, js_config=None, compilers=compilers):
+    def __init__(self, css_config=None, js_config=None, compilers=None):
+        if compilers is None:
+            compilers = Compilers()
+            
         self._packages = {
             'js':{},
             'css':{},

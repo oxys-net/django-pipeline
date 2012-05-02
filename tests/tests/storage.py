@@ -11,7 +11,7 @@ class StorageTest(TestCase):
     def setUp(self):
         self.old_compilers = settings.PIPELINE_COMPILERS
         
-        settings.PIPELINE_COMPILERS = ['tests.tests.utils.DummyCompiler']
+        settings.PIPELINE_COMPILERS = ['pipeline.compilers.dummy.DummyCompiler']
                 
         self.storage = PipelineStorage(packages=Packages(css_config={}, js_config={'application':{
                 'source_filenames': (

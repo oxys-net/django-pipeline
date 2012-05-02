@@ -20,7 +20,7 @@ class FileTest(TestCase):
         self.old_settings_css = settings.PIPELINE_CSS
         self.old_settings_js = settings.PIPELINE_JS
         
-        settings.PIPELINE_COMPILERS = ['tests.tests.compiler.DummyCompiler']
+        settings.PIPELINE_COMPILERS = ['pipeline.compilers.dummy.DummyCompiler']
         settings.PIPELINE_CSS = {'first': {
                                             'source_filenames': (
                                                 'css/first.css',
@@ -65,7 +65,7 @@ class FileTest(TestCase):
     
     def test_get(self):
         packages = Packages()
-        package = packages.get('css','first')
+        package = packages.get('css','screen')
         self.assertEqual(package._files[0].original.name, django_settings.STATICFILES_DIRS[0] + 'css/first.css')
         
     def test_get_exception(self):

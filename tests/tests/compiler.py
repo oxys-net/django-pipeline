@@ -6,13 +6,13 @@ from django.conf import settings as django_settings
 
 from pipeline.conf import settings
 from pipeline.compilers import Compilers
-from .utils import DummyReplaceCompiler
+from pipeline.compilers.dummy import DummyReplaceCompiler
 
 class CompilerTest(TestCase):
     
     def setUp(self):
         self.old_compilers = settings.PIPELINE_COMPILERS
-        settings.PIPELINE_COMPILERS = ['tests.tests.utils.DummyReplaceCompiler']
+        settings.PIPELINE_COMPILERS = ['pipeline.compilers.dummy.DummyReplaceCompiler']
         self.compilers = Compilers()
         
     def test_compilers_class(self):

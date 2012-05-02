@@ -24,13 +24,14 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = local_path('media')
 
-STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
+#STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 STATIC_ROOT = local_path('static/')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     local_path('assets/'),
 )
 STATICFILES_FINDERS = (
+    'pipeline.finders.PipelineFinder',
     'staticfiles.finders.FileSystemFinder',
     'staticfiles.finders.AppDirectoriesFinder'
 )
@@ -40,6 +41,8 @@ SECRET_KEY = "django-pipeline"
 TEMPLATE_DIRS = (
     local_path('templates'),
 )
+
+PIPELINE_COMPILERS = ['pipeline.compilers.dummy.DummyCompiler',]
 
 PIPELINE_CSS = {
     'screen': {

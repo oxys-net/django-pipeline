@@ -26,8 +26,6 @@ class Compilers(object):
             name, file = compiler.compile(name, file)
         return name, file
 
-compilers = Compilers()
-    
 class CompilerBase(object):
     
     def _match_file(self, filename):

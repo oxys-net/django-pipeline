@@ -10,7 +10,7 @@ class StylusCompiler(SubProcessCompiler):
     def _match_file(self, filename):
         return filename.endswith('.styl')
 
-    def _compile_file(self, content, path):
+    def _compile(self, content, path):
         command = "%s %s" % (
             settings.PIPELINE_STYLUS_BINARY,
             settings.PIPELINE_STYLUS_ARGUMENTS,

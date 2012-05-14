@@ -7,7 +7,7 @@ from django import template
 from django.template.loader import render_to_string
 
 from pipeline.conf import settings
-from pipeline.packager import Packager, PackageNotFound
+from pipeline.packager import Packages, PackageNotFound
 from pipeline.utils import guess_type
 
 register = template.Library()
@@ -18,35 +18,24 @@ class CompressedCSSNode(template.Node):
         self.name = name
 
     def render(self, context):
+        packages = Packages()
         package_name = template.Variable(self.name).resolve(context)
-        package = settings.PIPELINE_CSS.get(package_name, {})
-        if package:
-            package = {package_name: package}
-        self.packager = Packager(css_packages=package, js_packages={})
-
         try:
-            package = self.packager.package_for('css', package_name)
+            package = packages.get('css',package_name)
         except PackageNotFound:
-            return ''  # fail silently, do not return anything if an invalid group is specified
-
+            return ''
+        
         if settings.PIPELINE:
-            return self.render_css(package, package.output_filename)
+            return self.render_css(package.extra_context, package.output_filename)
         else:
-            raise Exception('need to extract paths')
-            return self.render_individual(package, paths)
-
-    def render_css(self, package, path):
-        template_name = package.template_name or "pipeline/css.html"
-        context = package.extra_context
+            return '\n'.join([self.render_css(package.extra_context, file.name) for file in package.files])
+        
+    def render_css(self, context, path):
         context.update({
             'type': guess_type(path, 'text/css'),
             'url': staticfiles_storage.url(path)
         })
-        return render_to_string(template_name, context)
-
-    def render_individual(self, package, paths):
-        tags = [self.render_css(package, path) for path in paths]
-        return '\n'.join(tags)
+        return render_to_string("pipeline/css.html", context)
 
 
 class CompressedJSNode(template.Node):

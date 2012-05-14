@@ -18,6 +18,7 @@ class Package(object):
         else:
             self.compilers = compilers
         self._files = []
+        self.extra_context = config.get('extra_context', {})
         self._output_filename = config['output_filename']
         for name in config['source_filenames']:
             path = self._findfile(name)
@@ -34,7 +35,11 @@ class Package(object):
             if result:
                 return result
         return None
-            
+    
+    @property
+    def output_filename(self):
+        return self._output_filename
+    
     def getfile(self, name):
         if self._output_filename == name:
             return self._files[0] #@todo wrong !!!
@@ -44,7 +49,11 @@ class Package(object):
                 return file 
         return None
     
-    def listfiles(self):
+    @property
+    def files(self):
+        return self._files
+    
+    def get_files(self):
         files = [self._output_filename]
         for file in self._files:
             files.append(file.name)
@@ -103,14 +112,14 @@ class Packages(object):
         for package_name in js_config:
             self._packages['js'][package_name] = JsPackage(js_config[package_name], compilers=compilers)
     
-    def listfiles(self):
+    def get_files(self):
         files = []
         for kind in self._packages:
             for package_name in self._packages[kind]:
-                files.extend(self._packages[kind][package_name].listfiles())
+                files.extend(self._packages[kind][package_name].get_files())
         return files
     
-    def getfile(self, name):
+    def get_file(self, name):
         for kind in self._packages:
             for package_name in self._packages[kind]:
                 file = self._packages[kind][package_name].getfile(name)

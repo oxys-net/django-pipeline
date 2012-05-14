@@ -37,15 +37,15 @@ class PipelineStorage(Storage):
     def path(self, name):
         if name == "":
             return True
-        return self.packages.getfile(name).compiled.name
+        return self.packages.get_file(name).compiled.name
     
     #delete
     
     def exists(self,path):
-        return path in self.packages.listfiles()
+        return path in self.packages.get_files()
     
     def listdir(self, path):
-        files = self.packages.listfiles()
+        files = self.packages.get_files()
         return [], files
     
     #size

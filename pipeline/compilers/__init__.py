@@ -72,7 +72,4 @@ class SubProcessCompiler(CompilerBase):
                 error = "Unable to apply %s compiler" % self.__class__.__name__
             raise CompilerError(error)
 
-        if self.verbose:
-            print error
-
         return compressed_content

@@ -14,6 +14,8 @@ class PackageTest(TestCase):
     def test_javascript_pack(self):
         pass
     
+#@TODO test package.extra_context
+    
 class FileTest(TestCase):
     def setUp(self):
         self.old_compilers = settings.PIPELINE_COMPILERS

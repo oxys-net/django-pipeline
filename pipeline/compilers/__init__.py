@@ -1,5 +1,5 @@
 import subprocess
-from os.path import splitext, basename
+from os.path import splitext, basename, dirname
 
 from pipeline.conf import settings
 from pipeline.utils import to_class
@@ -21,9 +21,10 @@ class Compilers(object):
             self._compilers.append(compiler_class())
         
     def compile(self, name, file):
+        path = dirname(file.name)
         file = clone(file)
         for compiler in self._compilers:
-            name, file = compiler.compile(name, file)
+            name, file = compiler.compile(name, path, file)
         return name, file
 
 class CompilerBase(object):
@@ -31,10 +32,10 @@ class CompilerBase(object):
     def _match_file(self, filename):
         raise NotImplementedError
 
-    def compile(self, name, file):
+    def compile(self, name, path, file):
         if self._match_file(file.name):
             file.open()
-            content = self._compile(file.read(), file.name)
+            content = self._compile(file.read(), path)
             prefix, suffix = splitext(basename(file.name))
             result = NamedTemporaryFile(prefix=prefix + '.', suffix='.' + self.output_extension)
             result.write(content)

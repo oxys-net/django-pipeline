@@ -88,8 +88,8 @@ class PackageFile(object):
     
     @property
     def compiled(self):
-        if self._compiled is None:
-            self._name, self._compiled = self.compilers.compile(self._original_name, self.original)
+        #if self._compiled is None:
+        self._name, self._compiled = self.compilers.compile(self._original_name, self.original)
         return self._compiled
 
 

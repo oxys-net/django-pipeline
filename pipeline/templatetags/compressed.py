@@ -12,77 +12,47 @@ from pipeline.utils import guess_type
 
 register = template.Library()
 
-
-class CompressedCSSNode(template.Node):
+class BaseCompressedNode(template.Node):
     def __init__(self, name):
         self.name = name
-
+        self.content_type = None
+        self.template = None
+        self.type = None
+        
     def render(self, context):
         packages = Packages()
         package_name = template.Variable(self.name).resolve(context)
         try:
-            package = packages.get('css',package_name)
+            package = packages.get(self.type,package_name)
         except PackageNotFound:
             return ''
         
         if settings.PIPELINE:
-            return self.render_css(package.extra_context, package.output_filename)
+            return self._render(package.extra_context, package.output_filename)
         else:
-            return '\n'.join([self.render_css(package.extra_context, file.name) for file in package.files])
+            return '\n'.join([self._render(package.extra_context, file.name) for file in package.files])
         
-    def render_css(self, context, path):
+    def _render(self, context, path):
         context.update({
-            'type': guess_type(path, 'text/css'),
+            'type': guess_type(path, self.content_type),
             'url': staticfiles_storage.url(path)
         })
-        return render_to_string("pipeline/css.html", context)
-
-
-class CompressedJSNode(template.Node):
+        return render_to_string(self.template, context)
+    
+class CompressedCSSNode(BaseCompressedNode):
     def __init__(self, name):
         self.name = name
-
-    def render(self, context):
-        package_name = template.Variable(self.name).resolve(context)
-        package = settings.PIPELINE_JS.get(package_name, {})
-        if package:
-            package = {package_name: package}
-        self.packager = Packager(css_packages={}, js_packages=package)
-
-        try:
-            package = self.packager.package_for('js', package_name)
-        except PackageNotFound:
-            return ''  # fail silently, do not return anything if an invalid group is specified
-
-        if settings.PIPELINE:
-            return self.render_js(package, package.output_filename)
-        else:
-            templates = self.packager.pack_templates(package)
-            raise Exception('need to extract paths')
-            return self.render_individual(package, paths, templates)
-
-    def render_js(self, package, path):
-        template_name = package.template_name or "pipeline/js.html"
-        context = package.extra_context
-        context.update({
-            'type': guess_type(path, 'text/javascript'),
-            'url': staticfiles_storage.url(path)
-        })
-        return render_to_string(template_name, context)
-
-    def render_inline(self, package, js):
-        context = package.extra_context
-        context.update({
-            'source': js
-        })
-        return render_to_string("pipeline/inline_js.html", context)
-
-    def render_individual(self, package, paths, templates=None):
-        tags = [self.render_js(package, js) for js in paths]
-        if templates:
-            tags.append(self.render_inline(package, templates))
-        return '\n'.join(tags)
-
+        self.content_type = 'text/css'
+        self.template = "pipeline/css.html"
+        self.type = 'css'
+        
+  
+class CompressedJSNode(BaseCompressedNode):
+    def __init__(self, name):
+        self.name = name
+        self.content_type = 'text/javascript'
+        self.template = "pipeline/js.html"
+        self.type = 'js'    
 
 def compressed_css(parser, token):
     try:

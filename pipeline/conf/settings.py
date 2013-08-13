@@ -6,7 +6,7 @@ PIPELINE_ROOT = getattr(settings, 'PIPELINE_ROOT', settings.STATIC_ROOT)
 PIPELINE_URL = getattr(settings, 'PIPELINE_URL', settings.STATIC_URL)
 
 PIPELINE_STORAGE = getattr(settings, 'PIPELINE_STORAGE',
-    'pipeline.storage.PipelineFinderStorage')
+    'pipeline.storage.PipelineStorage')
 
 PIPELINE_CSS_COMPRESSOR = getattr(settings, 'PIPELINE_CSS_COMPRESSOR',
     'pipeline.compressors.yui.YUICompressor'
